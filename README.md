@@ -1646,6 +1646,51 @@
             // Initialize the calendar
             initCalendar();
         });
-    </script>
+
+            // Modal functionality for titanium nails
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('titanium-modal');
+            const heroBtn = document.getElementById('hero-titanium-btn');
+            const closeBtn = document.getElementById('close-modal');
+            
+            // Open modal when button is clicked
+            if (heroBtn) {
+                heroBtn.addEventListener('click', function() {
+                    if (modal) {
+                        modal.style.display = 'block';
+                        document.body.style.overflow = 'hidden';
+                    }
+                });
+            }
+            
+            // Close modal when X button is clicked
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    if (modal) {
+                        modal.style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            }
+            
+            // Close modal when clicking outside the content
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            }
+            
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal && modal.style.display === 'block') {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        });
+            </script>
 </body>
 </html>
