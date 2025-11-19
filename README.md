@@ -328,8 +328,6 @@
             max-width: 700px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             animation: modalAppear 0.3s ease;
-            position: relative;
-            overflow: hidden;
         }
 
         @keyframes modalAppear {
@@ -1646,8 +1644,7 @@
             // Initialize the calendar
             initCalendar();
         });
-
-            // Modal functionality for titanium nails
+        // Modal functionality for titanium nails
         document.addEventListener('DOMContentLoaded', function() {
             const modal = document.getElementById('titanium-modal');
             const heroBtn = document.getElementById('hero-titanium-btn');
