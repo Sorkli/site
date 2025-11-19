@@ -1691,6 +1691,6 @@
                 }
             });
         });
-            </script>
+    </script>
 </body>
 </html>
