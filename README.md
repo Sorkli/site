@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Маникюрный салон | Титановые ногти</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <style>
         :root {
             --primary: #ff6b8b;
@@ -1343,7 +1342,9 @@
                 
                 <div class="booking-form">
                     <h3>Заполните данные для записи</h3>
-                    <form id="appointment-form" action="https://formspree.io/f/xrbonwnv" method="POST">
+                    <form id="appointment-form">
+                        <input type="hidden" id="selected-date" name="selected-date">
+                        <input type="hidden" id="selected-time" name="selected-time">
                         <div class="form-group">
                             <label for="name">Ваше имя</label>
                             <input type="text" id="name" name="name" class="form-control" required>
@@ -1425,20 +1426,23 @@
                 
                 <div class="contact-form">
                     <h3>Напишите мне</h3>
-                    <form id="contact-form" action="https://formspree.io/f/xrbonwnv" method="POST">
+                    <form id="contact-form">
                         <div class="form-group">
                             <label for="contact-name">Ваше имя</label>
                             <input type="text" id="contact-name" name="name" class="form-control" required>
                         </div>
                         <div class="form-group">
-                            <label for="contact-email">Email</label>
+                            <label for="contact-email">Ваш email</label>
                             <input type="email" id="contact-email" name="email" class="form-control" required>
                         </div>
                         <div class="form-group">
                             <label for="contact-message">Сообщение</label>
-                            <textarea id="contact-message" name="message" class="form-control" rows="5" required></textarea>
+                            <textarea id="contact-message" name="message" class="form-control" rows="4" required></textarea>
                         </div>
-                        <button type="submit" class="btn" style="width: 100%;">Отправить сообщение</button>
+                        <button type="submit" class="btn" style="width: 100%;" id="contact-submit-btn">
+                            <span id="contact-submit-text">Отправить сообщение</span>
+                            <span id="contact-submit-loading" class="loading" style="display: none;"></span>
+                        </button>
                     </form>
                 </div>
             </div>
@@ -1510,7 +1514,26 @@
                 document.getElementById('prev-month').addEventListener('click', prevMonth);
                 document.getElementById('next-month').addEventListener('click', nextMonth);
                 
-                // ... (остальной код формы без изменений) ...
+                // Form submission
+                document.getElementById('appointment-form').addEventListener('submit', handleAppointmentSubmit);
+                document.getElementById('contact-form').addEventListener('submit', handleContactSubmit);
+                
+                // Mobile navigation
+                document.querySelector('.mobile-menu').addEventListener('click', openMobileNav);
+                document.querySelector('.close-mobile-nav').addEventListener('click', closeMobileNav);
+                document.querySelector('.mobile-nav-overlay').addEventListener('click', closeMobileNav);
+                
+                // Mobile nav links
+                document.querySelectorAll('.mobile-nav-links a').forEach(link => {
+                    link.addEventListener('click', closeMobileNav);
+                });
+                
+                // Back to top button
+                document.getElementById('back-to-top').addEventListener('click', scrollToTop);
+                window.addEventListener('scroll', toggleBackToTop);
+                
+                // Header scroll effect
+                window.addEventListener('scroll', toggleHeaderScroll);
             }
             
             function renderCalendar(date) {
@@ -1629,6 +1652,10 @@
                         time.classList.add('selected');
                     }
                 });
+                
+                // Update hidden fields
+                document.getElementById('selected-date').value = selectedDate ? selectedDate.toLocaleDateString('ru-RU') : '';
+                document.getElementById('selected-time').value = selectedTime || '';
             }
             
             function prevMonth() {
@@ -1641,9 +1668,156 @@
                 renderCalendar(currentDate);
             }
             
+            // Form submission handlers
+            function handleAppointmentSubmit(e) {
+                e.preventDefault();
+                
+                // Validate date and time selection
+                if (!selectedDate || !selectedTime) {
+                    alert('Пожалуйста, выберите дату и время для записи');
+                    return;
+                }
+                
+                const submitBtn = document.getElementById('submit-btn');
+                const submitText = document.getElementById('submit-text');
+                const submitLoading = document.getElementById('submit-loading');
+                
+                // Show loading state
+                submitText.textContent = 'Отправка...';
+                submitLoading.style.display = 'inline-block';
+                submitBtn.disabled = true;
+                
+                // Prepare form data
+                const formData = new FormData(document.getElementById('appointment-form'));
+                
+                // Send to Formspree
+                fetch('https://formspree.io/f/xrbonwnv', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Show success message
+                        document.getElementById('success-message').style.display = 'block';
+                        // Reset form
+                        document.getElementById('appointment-form').reset();
+                        // Reset date and time selection
+                        selectedDate = null;
+                        selectedTime = null;
+                        updateSelected();
+                        renderCalendar(currentDate);
+                        
+                        // Hide success message after 5 seconds
+                        setTimeout(() => {
+                            document.getElementById('success-message').style.display = 'none';
+                        }, 5000);
+                    } else {
+                        throw new Error('Ошибка отправки формы');
+                    }
+                })
+                .catch(error => {
+                    alert('Произошла ошибка при отправке формы. Пожалуйста, попробуйте позже или свяжитесь с нами по телефону.');
+                    console.error('Form submission error:', error);
+                })
+                .finally(() => {
+                    // Reset button state
+                    submitText.textContent = 'Записаться';
+                    submitLoading.style.display = 'none';
+                    submitBtn.disabled = false;
+                });
+            }
+            
+            function handleContactSubmit(e) {
+                e.preventDefault();
+                
+                const submitBtn = document.getElementById('contact-submit-btn');
+                const submitText = document.getElementById('contact-submit-text');
+                const submitLoading = document.getElementById('contact-submit-loading');
+                
+                // Show loading state
+                submitText.textContent = 'Отправка...';
+                submitLoading.style.display = 'inline-block';
+                submitBtn.disabled = true;
+                
+                // Prepare form data
+                const formData = new FormData(document.getElementById('contact-form'));
+                
+                // Send to Formspree
+                fetch('https://formspree.io/f/xrbonwnv', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Сообщение успешно отправлено! Мы свяжемся с вами в ближайшее время.');
+                        // Reset form
+                        document.getElementById('contact-form').reset();
+                    } else {
+                        throw new Error('Ошибка отправки формы');
+                    }
+                })
+                .catch(error => {
+                    alert('Произошла ошибка при отправке сообщения. Пожалуйста, попробуйте позже или свяжитесь с нами по телефону.');
+                    console.error('Contact form submission error:', error);
+                })
+                .finally(() => {
+                    // Reset button state
+                    submitText.textContent = 'Отправить сообщение';
+                    submitLoading.style.display = 'none';
+                    submitBtn.disabled = false;
+                });
+            }
+            
+            // Mobile navigation functions
+            function openMobileNav() {
+                document.querySelector('.mobile-nav').classList.add('active');
+                document.querySelector('.mobile-nav-overlay').classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            function closeMobileNav() {
+                document.querySelector('.mobile-nav').classList.remove('active');
+                document.querySelector('.mobile-nav-overlay').classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+            
+            // Back to top functionality
+            function scrollToTop() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+            
+            function toggleBackToTop() {
+                const backToTopBtn = document.getElementById('back-to-top');
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.add('visible');
+                } else {
+                    backToTopBtn.classList.remove('visible');
+                }
+            }
+            
+            // Header scroll effect
+            function toggleHeaderScroll() {
+                const header = document.getElementById('main-header');
+                if (window.pageYOffset > 50) {
+                    header.classList.add('header-scrolled');
+                } else {
+                    header.classList.remove('header-scrolled');
+                }
+            }
+            
             // Initialize the calendar
             initCalendar();
         });
+
         // Modal functionality for titanium nails
         document.addEventListener('DOMContentLoaded', function() {
             const modal = document.getElementById('titanium-modal');
