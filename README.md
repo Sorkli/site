@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+        <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-BETR1B8E28"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -13,8 +14,6 @@
     <title>Маникюрный салон | Титановые ногти</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/436/436469.png" sizes="any">
-    <!-- Google tag (gtag.js) -->
-
     <style>
         :root {
             --primary: #ff6b8b;
