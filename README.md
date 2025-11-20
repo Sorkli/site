@@ -1050,8 +1050,8 @@
                         <li><a href="#home">Главная</a></li>
                         <li><a href="#about">Обо мне</a></li>
                         <li><a href="#services">Услуги</a></li>
-                        <li><a href="#booking">Запись</a></li>
                         <li><a href="#gallery">Галерея</a></li>
+                        <li><a href="#booking">Запись</a></li>
                         <li><a href="#contact">Контакты</a></li>
                     </ul>
                 </nav>
@@ -1861,6 +1861,10 @@
                     document.body.style.overflow = 'auto';
                 }
             });
+        });
+    </script>
+</body>
+</html>
         });
     </script>
 </body>
